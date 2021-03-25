@@ -46,10 +46,12 @@ namespace Speakerbooth
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(320, 429);
             this.Controls.Add(this.ImageBox);
             this.Name = "ImageViewer";
             this.Text = "Image Viewer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ImageViewer_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.ImageBox)).EndInit();
             this.ResumeLayout(false);
 

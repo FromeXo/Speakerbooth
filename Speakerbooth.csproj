@@ -7,12 +7,14 @@
     <StartupObject></StartupObject>
     <Platforms>AnyCPU;x86</Platforms>
     <ApplicationIcon>Resources\megaphone.ico</ApplicationIcon>
-    <Version>1.0.0.1</Version>
+    <Version>1.0.1.0</Version>
     <Authors>Robin "FromeXo" Johansson</Authors>
     <Company />
     <Product />
     <PackageIcon></PackageIcon>
     <Copyright>2021, Robin Johansson</Copyright>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

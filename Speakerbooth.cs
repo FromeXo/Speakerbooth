@@ -3,41 +3,35 @@ using System.IO;
 using System.Reflection;
 using System.Data.SQLite;
 using System.Diagnostics;
-using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Net;
 using System.Drawing;
 
 namespace Speakerbooth
 {
-    public partial class Form1 : Form
+    public partial class Speakerbooth : Form
     {
+        AutoCompleteStringCollection AutoComplete = new AutoCompleteStringCollection();
         ImageViewer Viewer = new ImageViewer();
+        string CurrentImage = "";
         Player Player1 = new Player();
         Player Player2 = new Player();
-
-        static bool Reading = false;
-        string CurrentImage = "";
-        static SQLiteConnection DB;
-
-        AutoCompleteStringCollection AutoComplete = new AutoCompleteStringCollection();
-
-        public Form1()
+        
+        public Speakerbooth()
         {
-            OpenDatabase();
             InitializeComponent();
+
+            // Speakerbooth misc settings.
             Icon = Properties.Resources.megaphone;
-            Text = Text + " - v" +Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-
+            Text += " - v" +Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
-        public void OpenDatabase()
+        public SQLiteConnection GetDatabase()
         {
             string dbName = "mtg.db";
             string path = Path.Combine(Environment.CurrentDirectory, @"Database\", dbName);
 
-            DB = new SQLiteConnection("Data Source=" + path + ";Mode=ReadOnly;");
+            SQLiteConnection DB = new SQLiteConnection("Data Source=" + path + ";Mode=ReadOnly;");
 
             try
             {
@@ -49,10 +43,13 @@ namespace Speakerbooth
                 Debug.WriteLine(ex.Message);
             }
 
+            return DB;
+
         }
 
         public void PopulateAutoList()
         {
+            var DB = GetDatabase();
             SQLiteCommand command = DB.CreateCommand();
             
             command.CommandText = "SELECT `name` FROM `cards` ORDER BY LENGTH(`name`) ASC";
@@ -62,92 +59,41 @@ namespace Speakerbooth
 
                 if (reader.HasRows)
                 {
-
                     while (reader.Read())
                     {
                         string name = reader.GetString(0);
                         if (name.Length > 0) { AutoComplete.Add(name); }
                     }
                 }
-
                 reader.Close();
             }
-        }
-
-        public void SearchCard(string query)
-        {
-            Debug.WriteLine("SeachCard");
-            Reading = true;
-
-            SQLiteCommand command = DB.CreateCommand();
-
-            command.CommandText = "SELECT DISTINCT `name` FROM `cards` WHERE `name` LIKE :query ORDER BY LENGTH(`name`) ASC LIMIT 10";
-            command.Parameters.AddWithValue(":query", query + "%");
-
-            List<string> myList = new List<string>();
-
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-
-                if (reader.HasRows)
-                {
-
-                    while (reader.Read())
-                    {
-                        string name = reader.GetString(0);
-                        if (name.Length > 0)
-                        {
-
-                            AutoComplete.Add(name);
-                        }
-
-                    }
-                    Debug.WriteLine(String.Join(",", myList.ToArray()));
-
-
-
-                }
-                else
-                {
-                    Debug.WriteLine("I has NOT rows");
-                }
-                reader.Close();
-            }
-            Reading = false;
-            Debug.WriteLine("SeachCard Done");
+            DB.Close();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
             Debug.WriteLine("Form1_Load");
             PopulateAutoList();
-            seachBox.AutoCompleteMode = AutoCompleteMode.Suggest;
-            seachBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            seachBox.AutoCompleteCustomSource = AutoComplete;
+            SeachBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+            SeachBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            SeachBox.AutoCompleteCustomSource = AutoComplete;
+            CardPreview.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-
-            if ( Viewer.Visible )
-            {
-                Viewer.Close();
-            }
-            DB.Close();
+            if ( Viewer.Visible ) Viewer.Close();
         }
-        
-        private void seachBox_TextChanged(object sender, EventArgs e){}
 
         private void seachBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-
+                var DB = GetDatabase();
                 SQLiteCommand command = DB.CreateCommand();
 
                 command.CommandText = "SELECT scryfallId FROM cards WHERE name = :name LIMIT 1";
-                command.Parameters.AddWithValue(":name", seachBox.Text);
+                command.Parameters.AddWithValue(":name", SeachBox.Text);
 
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
@@ -167,23 +113,26 @@ namespace Speakerbooth
                                 client.Headers.Add("Content-Type", "image/png");
                                 string url = "https://api.scryfall.com/cards/" + scryID + "?format=image";
                                 client.DownloadFile(new Uri(url), imgPath);
+                                client.Dispose();
                             }
 
                         }
 
-                        if ( File.Exists(imgPath) ) { 
+                        if ( File.Exists(imgPath) ) {
                             CurrentImage = imgPath;
-                            Bitmap cardImage = new Bitmap(imgPath);
-                            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-                            pictureBox1.Image = (Image)cardImage;
+
+                            if (CardPreview.Image != null )
+                            {
+                                CardPreview.Image.Dispose();
+                            }
+
+                            CardPreview.Image = (Image) new Bitmap(imgPath);
                         }
 
                     }
                     reader.Close();
                 }
-
-                string path = Path.Combine(Environment.CurrentDirectory, @"images\");
-
+                DB.Close();
                 e.Handled = true;
             }
         }
@@ -191,7 +140,7 @@ namespace Speakerbooth
         
         private void button9_Click(object sender, EventArgs e)
         {
-            if ( Viewer.IsDisposed )
+            if ( Viewer.IsDisposed  )
             {
                 Viewer = new ImageViewer();
             }
@@ -202,7 +151,6 @@ namespace Speakerbooth
             {
                 Viewer.Show();
             }
-
         }
         
         private void P2Name(object sender, KeyEventArgs e)
@@ -222,7 +170,6 @@ namespace Speakerbooth
                 Player1.Name = (sender as TextBox).Text;
                 WriteFile("player1_name", Player1.Name);
             }
-            
         }
 
         private void P2Pois(object sender, EventArgs e)
@@ -252,76 +199,87 @@ namespace Speakerbooth
         private void P1Life(object sender, EventArgs e)
         {
             string action = (sender as Button).Text;
-
+            
             switch( action )
             {
                 case "+1":
-                    Player1.Add1ToLife();
+                    Player1.Life += 1;
                     break;
                 case "+5":
-                    Player1.Add5ToLife();
+                    Player1.Life += 5;
                     break;
                 case "-1":
-                    Player1.Sub1FromLife();
+                    Player1.Life -= 1;
                     break;
                 case "-5":
-                    Player1.Sub5FromLife();
+                    Player1.Life -= 5;
                     break;
             }
 
-            label6.Text = Player1.Life.ToString();
-            WriteFile("player1_life", label6.Text);
+            LifePlayer1.Text = Player1.Life.ToString();
+            WriteFile("player1_life", LifePlayer1.Text);
 
         }
 
         private void P2Life(object sender, EventArgs e)
         {
             string action = (sender as Button).Text;
-
+            
             switch (action)
             {
                 case "+1":
-                    Player2.Add1ToLife();
+                    Player2.Life += 1;
                     break;
                 case "+5":
-                    Player2.Add5ToLife();
+                    Player2.Life += 5;
                     break;
                 case "-1":
-                    Player2.Sub1FromLife();
+                    Player2.Life -= 1;
                     break;
                 case "-5":
-                    Player2.Sub5FromLife();
+                    Player2.Life -= 5;
                     break;
             }
 
-            label7.Text = Player2.Life.ToString();
-            WriteFile("player2_life", label7.Text);
-
+            LifePlayer2.Text = Player2.Life.ToString();
+            WriteFile("player2_life", LifePlayer2.Text);
         }
 
-        private void WriteFile(string filename, string value)
+
+        private bool WriteFile(string filename, string value)
         {
             string textPath = Path.Combine(Environment.CurrentDirectory, @"Player\", filename + ".txt");
-            File.WriteAllText(textPath, value);
-        }
+            try
+            {
+                File.WriteAllText(textPath, value);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
 
-        private void button10_Click(object sender, EventArgs e)
+            return true;
+        }
+        
+        private void ResetWindsAndPoison(object sender, EventArgs e)
         {
+
             Player1.Life = Player2.Life = 20;
             Player1.Poison = Player2.Poison = 0;
 
-            label6.Text = Player1.Life.ToString();
-            WriteFile("player1_life", label6.Text);
+            LifePlayer1.Text = LifePlayer2.Text = Player1.Life.ToString();
+            P1Poison.Value = P2Poison.Value = Player1.Poison;
 
-            label7.Text = Player2.Life.ToString();
-            WriteFile("player2_life", label7.Text);
-
-            P1Poi.Value = (decimal) Player1.Poison;
+            WriteFile("player1_life", LifePlayer1.Text);
+            WriteFile("player2_life", LifePlayer2.Text);
             WriteFile("player1_poison", Player1.Poison.ToString());
-
-            P2Poison.Value = (decimal) Player2.Poison;
             WriteFile("player2_poison", Player2.Poison.ToString());
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Viewer.ToggleImage();
         }
     }
 }
