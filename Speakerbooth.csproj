@@ -7,14 +7,14 @@
     <StartupObject></StartupObject>
     <Platforms>AnyCPU;x86</Platforms>
     <ApplicationIcon>Resources\megaphone.ico</ApplicationIcon>
-    <Version>1.0.1.0</Version>
+    <Version>1.0.2.0</Version>
     <Authors>Robin "FromeXo" Johansson</Authors>
     <Company />
     <Product />
     <PackageIcon></PackageIcon>
     <Copyright>2021, Robin Johansson</Copyright>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -57,8 +57,55 @@
     <None Update="Database\mtg.db">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Images\pl.txt">
+    <None Update="Images\placeholder.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Player\player1_poison.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player1_wins.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player2_sideboard.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player2_decklist.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player1_sideboard.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player1_decklist.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player2_wins.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player2_poison.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player1_archetype.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player2_archetype.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
+    </None>
+    <None Update="Player\player2_life.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Form</SubType>
     </None>
     <None Update="Player\player1_life.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

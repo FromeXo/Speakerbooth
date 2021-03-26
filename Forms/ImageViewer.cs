@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace Speakerbooth
 {
-    public partial class ImageViewer : Form, IDisposable
+    public partial class ImageViewer : Form
     {
 
         string CurrentImage;

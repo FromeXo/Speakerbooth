@@ -8,6 +8,7 @@ namespace Speakerbooth
     class Player
     {
         public string Name;
+        public string Archetype;
         public int Wins = 0;
         public int Life = 20;
         public int Poison = 0;
